@@ -1,0 +1,7 @@
+branch,policy,t,rep,miss,tp
+single-manager,s3fifo,1,1,0.7750,0.45
+single-manager,s3fifoforgive,1,1,0.7679,0.34
+single-manager,s3fifo,1,2,0.7750,0.44
+single-manager,s3fifoforgive,1,2,0.7679,0.34
+single-manager,s3fifo,1,3,0.7750,0.45
+single-manager,s3fifoforgive,1,3,0.7725,0.32

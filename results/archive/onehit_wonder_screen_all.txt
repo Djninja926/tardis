@@ -1,0 +1,102 @@
+msr_hm_0.oracleGeneral
+  requests            : 3,993,316
+  distinct objects    : 439,187
+  one-hit-wonders     : 138,985
+  OHW / distinct objs : 31.6%
+  OHW / requests      : 3.5%
+msr_prn_0.oracleGeneral
+  requests            : 5,585,886
+  distinct objects    : 711,385
+  one-hit-wonders     : 304,801
+  OHW / distinct objs : 42.8%
+  OHW / requests      : 5.5%
+msr_prn_1.oracleGeneral
+  requests            : 11,233,411
+  distinct objects    : 2,173,575
+  one-hit-wonders     : 1,484,238
+  OHW / distinct objs : 68.3%
+  OHW / requests      : 13.2%
+msr_proj_0.oracleGeneral
+  requests            : 4,224,524
+  distinct objects    : 286,228
+  one-hit-wonders     : 108,232
+  OHW / distinct objs : 37.8%
+  OHW / requests      : 2.6%
+msr_proj_1.oracleGeneral
+  requests            : 23,639,742
+  distinct objects    : 15,452,001
+  one-hit-wonders     : 14,107,104
+  OHW / distinct objs : 91.3%
+  OHW / requests      : 59.7%
+msr_proj_2.oracleGeneral
+  requests            : 29,266,482
+  distinct objects    : 16,180,242
+  one-hit-wonders     : 10,000,333
+  OHW / distinct objs : 61.8%
+  OHW / requests      : 34.2%
+msr_proj_4.oracleGeneral
+  requests            : 6,465,639
+  distinct objects    : 3,002,525
+  one-hit-wonders     : 2,401,607
+  OHW / distinct objs : 80.0%
+  OHW / requests      : 37.1%
+msr_prxy_0.oracleGeneral
+  requests            : 12,518,968
+  distinct objects    : 155,681
+  one-hit-wonders     : 14,299
+  OHW / distinct objs : 9.2%
+  OHW / requests      : 0.1%
+msr_prxy_1.oracleGeneral
+  requests            : 168,638,964
+  distinct objects    : 390,226
+  one-hit-wonders     : 294,278
+  OHW / distinct objs : 75.4%
+  OHW / requests      : 0.2%
+msr_src1_0.oracleGeneral
+  requests            : 37,415,613
+  distinct objects    : 5,659,341
+  one-hit-wonders     : 2,327,051
+  OHW / distinct objs : 41.1%
+  OHW / requests      : 6.2%
+msr_src1_1.oracleGeneral
+  requests            : 45,746,222
+  distinct objects    : 6,170,590
+  one-hit-wonders     : 564,964
+  OHW / distinct objs : 9.2%
+  OHW / requests      : 1.2%
+msr_usr_1.oracleGeneral
+  requests            : 45,283,980
+  distinct objects    : 13,966,057
+  one-hit-wonders     : 11,722,691
+  OHW / distinct objs : 83.9%
+  OHW / requests      : 25.9%
+msr_usr_2.oracleGeneral
+  requests            : 10,570,046
+  distinct objects    : 7,374,757
+  one-hit-wonders     : 6,801,883
+  OHW / distinct objs : 92.2%
+  OHW / requests      : 64.4%
+msr_web_2.oracleGeneral
+  requests            : 5,175,368
+  distinct objects    : 1,321,270
+  one-hit-wonders     : 337,494
+  OHW / distinct objs : 25.5%
+  OHW / requests      : 6.5%
+cache-t-00.oracleGeneral
+  requests            : 9,826,681
+  distinct objects    : 2,768,652
+  one-hit-wonders     : 1,756,376
+  OHW / distinct objs : 63.4%
+  OHW / requests      : 17.9%
+cluster50.oracleGeneral
+  requests            : 139,655,585
+  distinct objects    : 2,658,481
+  one-hit-wonders     : 171,380
+  OHW / distinct objs : 6.4%
+  OHW / requests      : 0.1%
+cluster53.oracleGeneral
+  requests            : 246,508,262
+  distinct objects    : 7,263,330
+  one-hit-wonders     : 691,290
+  OHW / distinct objs : 9.5%
+  OHW / requests      : 0.3%

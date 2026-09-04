@@ -1,0 +1,5 @@
+traces/
+sosp23-s3fifo/
+*.oracleGeneral
+*.oracleGeneral.bin
+*.zst
