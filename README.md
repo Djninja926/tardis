@@ -1,4 +1,4 @@
-# TARDIS / LRUForgive data directory
+# TARDIS / LRUForgive / S3FIFOForgive data directory
 
 ## Authoritative results
 - results/final_sweep_perthread.csv        <- jane-perthread branch, full sweep
