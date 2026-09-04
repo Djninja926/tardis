@@ -3,3 +3,6 @@ sosp23-s3fifo/
 *.oracleGeneral
 *.oracleGeneral.bin
 *.zst
+*.simd
+*.stage1
+results/archive/lruforgive.*
