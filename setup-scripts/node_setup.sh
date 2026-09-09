@@ -49,13 +49,18 @@ git checkout "$BRANCH"
 git pull origin "$BRANCH" || true
 echo "code: $(git rev-parse --abbrev-ref HEAD) @ $(git rev-parse --short HEAD)"
 
-# FIX: the fork's cachelib/external/zstd is a broken submodule (a gitlink with no
-# .gitmodules URL). build-package.sh (contrib/build-package.sh, zstd case) expects
-# it to be a real clone of facebook/zstd with an origin/release branch, and runs
-# `git checkout --force origin/release` in it. Replace the broken dir with a proper
-# clone so that checkout succeeds. Without this the build dies at
-# "failed to checkout branch release in cachelib/external/zstd".
-echo "  [zstd fix] re-cloning facebook/zstd into cachelib/external/zstd"
+# FIX: the fork's cachelib/external/zstd is a broken submodule (a gitlink in the
+# index with no .gitmodules URL). This breaks the build two ways: (1) build.sh's
+# `git submodule update --init` dies with "No url found for submodule ...zstd",
+# and (2) build-package.sh later expects a real facebook/zstd clone with an
+# origin/release branch. Fix BOTH: remove the gitlink from the index and drop any
+# stale submodule config, then replace the dir with a real facebook/zstd clone so
+# `git checkout origin/release` succeeds. Removing the gitlink is what lets
+# `git submodule update` skip zstd instead of aborting.
+echo "  [zstd fix] removing broken zstd gitlink + re-cloning facebook/zstd"
+git rm -r --cached cachelib/external/zstd 2>/dev/null || true
+git config -f .gitmodules --remove-section submodule.cachelib/external/zstd 2>/dev/null || true
+git config --remove-section submodule.cachelib/external/zstd 2>/dev/null || true
 rm -rf cachelib/external/zstd
 git clone https://github.com/facebook/zstd cachelib/external/zstd
 
