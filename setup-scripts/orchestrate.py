@@ -45,8 +45,10 @@ def connect(host, user, key_path):
     c.connect(host, **kw)
     return c
 
-def run(c, cmd, quiet=False):
-    stdin, stdout, stderr = c.exec_command(cmd)
+def run(c, cmd, quiet=False, want_pty=False):
+    # want_pty=True allocates a pseudo-TTY and sets TERM, needed for commands
+    # that run apt-get / debconf or otherwise expect a terminal (e.g. build.sh).
+    stdin, stdout, stderr = c.exec_command(cmd, get_pty=want_pty)
     out = stdout.read().decode(); err = stderr.read().decode()
     rc = stdout.channel.recv_exit_status()
     if not quiet:
@@ -60,14 +62,16 @@ def do_setup(node, cfg):
     print(f"[{host}] SETUP start")
     c = connect(host, user, key)
     try:
-        # bootstrap: ensure /mydata writable, clone the scripts repo, run setup
+        # bootstrap: ensure /mydata writable, clone the scripts repo, run setup.
+        # export TERM + request a PTY so apt-get/debconf steps in build.sh work.
         boot = (
+            f"export TERM=xterm; "
             f"sudo chown -R $USER:$(id -gn) /mydata 2>/dev/null; "
             f"mkdir -p {REMOTE_TARDIS} && cd {REMOTE_TARDIS} && "
             f"([ -d scripts-repo ] || git clone {repo} scripts-repo) && "
             f"bash {SETUP}"
         )
-        rc, _, _ = run(c, boot)
+        rc, _, _ = run(c, boot, want_pty=True)
         print(f"[{host}] SETUP {'OK' if rc == 0 else 'FAILED rc='+str(rc)}")
         return rc == 0
     finally:
@@ -142,7 +146,7 @@ def main():
     ap.add_argument("--outdir", default="collected")
     args = ap.parse_args()
 
-    cfg = yaml.safe_load(open(args.config))
+    cfg = yaml.safe_load(open(args.config, encoding="utf-8-sig"))
     nodes = cfg["nodes"]
 
     if args.setup:

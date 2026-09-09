@@ -49,6 +49,16 @@ git checkout "$BRANCH"
 git pull origin "$BRANCH" || true
 echo "code: $(git rev-parse --abbrev-ref HEAD) @ $(git rev-parse --short HEAD)"
 
+# FIX: the fork's cachelib/external/zstd is a broken submodule (a gitlink with no
+# .gitmodules URL). build-package.sh (contrib/build-package.sh, zstd case) expects
+# it to be a real clone of facebook/zstd with an origin/release branch, and runs
+# `git checkout --force origin/release` in it. Replace the broken dir with a proper
+# clone so that checkout succeeds. Without this the build dies at
+# "failed to checkout branch release in cachelib/external/zstd".
+echo "  [zstd fix] re-cloning facebook/zstd into cachelib/external/zstd"
+rm -rf cachelib/external/zstd
+git clone https://github.com/facebook/zstd cachelib/external/zstd
+
 echo "############ 5. turboboost OFF (consistent throughput) ############"
 cd "$TARDIS/sosp23-s3fifo/cachelib-sosp23/mybench"
 bash turboboost.sh disable || echo "WARN: could not disable turbo (need root?)"
