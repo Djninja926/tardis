@@ -57,6 +57,7 @@ run_cell() {  # policy trace_name trace_path cache_pct size_mb n_obj footprint_m
 }
 
 while IFS= read -r url; do
+  url="${url%$'\r'}"   # strip trailing CR if the shard file has Windows CRLF endings
   [ -z "$url" ] && continue
   case "$url" in \#*) continue;; esac
 

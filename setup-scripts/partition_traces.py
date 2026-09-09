@@ -22,9 +22,10 @@ def main():
     ap.add_argument("--outdir", default="shards")
     args = ap.parse_args()
 
-    # read (dataset, url) rows, skip comments
+    # read (dataset, url) rows, skip comments. utf-8-sig tolerates a UTF-8/UTF-16
+    # BOM that PowerShell's > redirect adds.
     rows = []
-    with open(args.master) as f:
+    with open(args.master, encoding="utf-8-sig") as f:
         for line in f:
             line = line.rstrip("\n")
             if not line or line.startswith("#"):
@@ -79,7 +80,7 @@ def main():
     os.makedirs(args.outdir, exist_ok=True)
     for i in range(N):
         path = os.path.join(args.outdir, f"shard_{i:02d}.txt")
-        with open(path, "w") as f:
+        with open(path, "w", newline="\n") as f:
             for url in bins[i]:
                 f.write(url + "\n")
         print(f"  shard_{i:02d}: {loads[i]:>4} traces  {assign[i]}", file=sys.stderr)
