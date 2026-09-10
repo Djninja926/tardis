@@ -19,6 +19,9 @@ if [ ! -w /mydata ]; then
   exit 1
 fi
 mkdir -p "$TARDIS"
+# numactl: needed for NUMA pinning on multi-socket nodes (e.g. C220G2) so
+# throughput numbers stay consistent. The worker uses it only if present.
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y numactl >/dev/null 2>&1 && echo "numactl installed" || echo "WARN: numactl install failed (worker will run without pinning)"
 
 echo "############ 1. scripts repo (workers + helpers) ############"
 cd "$TARDIS"
