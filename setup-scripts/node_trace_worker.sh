@@ -49,14 +49,28 @@ if [ ! -f "$OUT" ]; then
 fi
 
 hp_for() {
-  python3 -c "import math;mb=max(1.0,$1);print(min(31,max(16,int(round(math.log2(mb)))+16)))"
+  # round(log2(mb))+16, CAPPED at 27. Uncapped this hits 30-32 for GB-scale
+  # caches (billions of hash buckets) which allocates a huge table and OOMs.
+  python3 -c "import math;mb=max(1.0,$1);print(min(27,max(16,int(round(math.log2(mb)))+16)))"
 }
+
+# Available RAM in MB; skip any cell whose cache exceeds ~80% of it (would OOM).
+RAM_MB=$(awk '/MemTotal/{print int($2/1024)}' /proc/meminfo)
+RAM_CAP_MB=$(python3 -c "print(int($RAM_MB*0.80))")
+echo "NOTE: node RAM=${RAM_MB}MB, cache size cap=${RAM_CAP_MB}MB (larger cells skipped)"
 
 run_cell() {  # policy trace_name trace_path cache_pct size_mb n_obj footprint_mb
   local pol=$1 name=$2 path=$3 pct=$4 sz=$5 nobj=$6 fp=$7
   local hp; hp=$(hp_for "$sz")
   local szi; szi=$(python3 -c "print(int(round($sz)))")
   [ "$szi" -lt 1 ] && szi=1
+  # skip cells whose cache exceeds available RAM (they OOM / hang)
+  if [ "$szi" -gt "$RAM_CAP_MB" ]; then
+    for rep in $(seq 1 $REPS); do
+      echo "$NODE,$name,$pol,$pct,$szi,$hp,1,$rep,NA_TOOBIG,NA,NA,$fp,$nobj" >> "$OUT"
+    done
+    return
+  fi
   for rep in $(seq 1 $REPS); do
     local line mr tp rq
     line=$(timeout 2400 $NUMACTL "$BUILD/$pol" "$path" "$szi" "$hp" 1 0 2>/dev/null | tail -1)
