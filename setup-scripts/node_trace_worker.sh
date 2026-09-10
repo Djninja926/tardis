@@ -86,14 +86,19 @@ while IFS= read -r url; do
   [ -z "$url" ] && continue
   case "$url" in \#*) continue;; esac
 
-  name=$(basename "$url" .oracleGeneral.zst)
+  # Filenames vary: name.oracleGeneral.zst, name.oracleGeneral.bin.zst
+  # (cloudphysics), name.oracleGeneral.sample10.zst (twitter samples). Derive a
+  # clean trace name = everything before ".oracleGeneral", and keep the full
+  # remote basename for the local .zst so wget/zstd handle any variant.
+  remote_base=$(basename "$url")                      # e.g. w01.oracleGeneral.bin.zst
+  name="${remote_base%%.oracleGeneral*}"              # e.g. w01
   if grep -q ",$name," "$OUT" 2>/dev/null; then
     echo "[$NODE] SKIP $name (done)"; continue
   fi
   echo "[$NODE] === $name ==="
 
-  zst="$WORK/$name.oracleGeneral.zst"
-  trace="$WORK/$name.oracleGeneral"
+  zst="$WORK/$remote_base"                             # keep full remote name for the .zst
+  trace="$WORK/$name.oracleGeneral"                    # decompress to a clean name
 
   wget -q -O "$zst" "$url" || { echo "[$NODE] DL FAIL $name"; rm -f "$zst"; continue; }
   zstd -d -q --rm "$zst" -o "$trace" || { echo "[$NODE] UNZIP FAIL $name"; rm -f "$zst" "$trace"; continue; }

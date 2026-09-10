@@ -42,24 +42,28 @@ DATASETS = {
 }
 
 def list_dir(relpath):
-    """Return the .oracleGeneral.zst filenames directly in BASE/relpath (non-recursive)."""
+    """Return oracleGeneral*.zst filenames directly in BASE/relpath (non-recursive).
+    Matches variants: .oracleGeneral.zst, .oracleGeneral.bin.zst (cloudphysics),
+    .oracleGeneral.sample10.zst / .sample100.zst (twitter samples), etc."""
     url = f"{BASE}/{relpath}/"
     try:
         html = urllib.request.urlopen(url, timeout=60).read().decode("utf-8", "replace")
     except Exception as e:
         print(f"# WARN: could not list {url}: {e}", file=sys.stderr)
         return []
-    # directory-index anchors: href="name.oracleGeneral.zst"
-    files = re.findall(r'href="([^"]+\.oracleGeneral\.zst)"', html)
-    # exclude anything that looks like a nested path (has a slash) - keep only direct files
-    files = [f for f in files if "/" not in f]
+    # any filename containing .oracleGeneral and ending in .zst (covers .bin.zst,
+    # .sample10.zst, .sample100.zst, plain .oracleGeneral.zst).
+    files = re.findall(r'href="([^"]*\.oracleGeneral[^"]*\.zst)"', html)
+    files = [f for f in files if "/" not in f]  # direct files only, no nested paths
     return sorted(set(files))
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--datasets", help="comma-separated subset of dataset keys (default: all)")
+    ap.add_argument("--output", help="write list here as UTF-8 LF (avoids PowerShell UTF-16 redirect). Default: stdout")
     args = ap.parse_args()
 
+    out = open(args.output, "w", encoding="utf-8", newline="\n") if args.output else sys.stdout
     keys = args.datasets.split(",") if args.datasets else list(DATASETS.keys())
     total = 0
     for key in keys:
@@ -69,8 +73,10 @@ def main():
         files = list_dir(relpath)
         print(f"# {key}: {len(files)} traces", file=sys.stderr)
         for fn in files:
-            print(f"{key}\t{BASE}/{relpath}/{fn}")
+            out.write(f"{key}\t{BASE}/{relpath}/{fn}\n")
             total += 1
+    if args.output:
+        out.close()
     print(f"# TOTAL: {total} traces", file=sys.stderr)
 
 if __name__ == "__main__":
