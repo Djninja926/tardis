@@ -29,6 +29,17 @@ mkdir -p "$WORK"
 REPS=3
 NODE=$(hostname)
 
+# NUMA pinning: use numactl --membind=0 only if numactl exists AND node 0 is a
+# valid membind target on this hardware. Otherwise run without pinning. This
+# t=1 pass is miss-ratio-focused, so pinning does not affect correctness, only
+# throughput consistency (which matters for the later throughput phase, not here).
+if command -v numactl >/dev/null 2>&1 && numactl --membind=0 true >/dev/null 2>&1; then
+  NUMACTL="numactl --membind=0"
+else
+  NUMACTL=""
+  echo "NOTE: numactl unavailable or membind=0 invalid on $NODE; running without NUMA pinning"
+fi
+
 if [ "$(cat /sys/devices/system/cpu/intel_pstate/no_turbo 2>/dev/null)" != "1" ]; then
   echo "WARN: turbo not disabled on $NODE"
 fi
@@ -48,7 +59,7 @@ run_cell() {  # policy trace_name trace_path cache_pct size_mb n_obj footprint_m
   [ "$szi" -lt 1 ] && szi=1
   for rep in $(seq 1 $REPS); do
     local line mr tp rq
-    line=$(timeout 2400 numactl --membind=0 "$BUILD/$pol" "$path" "$szi" "$hp" 1 0 2>/dev/null | tail -1)
+    line=$(timeout 2400 $NUMACTL "$BUILD/$pol" "$path" "$szi" "$hp" 1 0 2>/dev/null | tail -1)
     mr=$(echo "$line" | grep -oE 'miss ratio [0-9.]+' | awk '{print $3}')
     tp=$(echo "$line" | grep -oE 'throughput [0-9.]+' | awk '{print $2}')
     rq=$(echo "$line" | grep -oE '[0-9]+ requests' | awk '{print $1}')
