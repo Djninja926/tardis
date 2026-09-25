@@ -32,8 +32,10 @@ import paramiko
 REMOTE_TARDIS = "/mydata/tardis"
 REMOTE_SHARD  = f"{REMOTE_TARDIS}/shard.txt"
 REMOTE_OUT    = f"{REMOTE_TARDIS}/results/node_out.csv"
-WORKER        = f"{REMOTE_TARDIS}/scripts-repo/setup-scripts/node_trace_worker.sh"
-SETUP         = f"{REMOTE_TARDIS}/scripts-repo/setup-scripts/node_setup.sh"
+# libCacheSim embedding sweep (Aryan's fork). The CacheLib versions,
+# node_trace_worker.sh and node_setup.sh, remain in the repo unchanged.
+WORKER        = f"{REMOTE_TARDIS}/scripts-repo/setup-scripts/node_cachesim_worker.sh"
+SETUP         = f"{REMOTE_TARDIS}/scripts-repo/setup-scripts/node_setup_libcachesim.sh"
 TMUX          = "tracesweep"
 
 def connect(host, user, key_path):
@@ -68,7 +70,10 @@ def do_setup(node, cfg):
             f"export TERM=xterm; "
             f"sudo chown -R $USER:$(id -gn) /mydata 2>/dev/null; "
             f"mkdir -p {REMOTE_TARDIS} && cd {REMOTE_TARDIS} && "
-            f"([ -d scripts-repo ] || git clone {repo} scripts-repo) && "
+            # pull if the checkout exists: a stale checkout would not contain
+            # a setup script added after the node was first set up
+            f"(if [ -d scripts-repo ]; then cd scripts-repo && git pull --ff-only && cd ..; "
+            f"else git clone {repo} scripts-repo; fi) && "
             f"bash {SETUP}"
         )
         rc, _, _ = run(c, boot, want_pty=True)
